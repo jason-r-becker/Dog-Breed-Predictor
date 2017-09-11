@@ -20,6 +20,8 @@ def load_dataset(path):
     dog_files = np.array(data['filenames'])
     dog_targets = np_utils.to_categorical(np.array(data['target']), 133)
     return dog_files, dog_targets
+
+
 def path_to_tensor(img_path):
     # loads RGB image as PIL.Image.Image type
     img = image.load_img(img_path, target_size=(224, 224))
@@ -38,6 +40,8 @@ def ResNet50_predict_labels(img_path):
     # returns prediction vector for image located at img_path
     img = preprocess_input(path_to_tensor(img_path))
     return np.argmax(ResNet50_model.predict(img))
+
+
 def face_detector(img_path):
     img = cv2.imread(img_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -48,6 +52,8 @@ def face_detector(img_path):
 def dog_detector(img_path):
     prediction = ResNet50_predict_labels(img_path)
     return ((prediction <= 268) & (prediction >= 151))
+
+
 def cnn_model():
     model = Sequential([
         GlobalAveragePooling2D(input_shape=train_resnet.shape[1:]),
@@ -59,8 +65,10 @@ def cnn_model():
         BatchNormalization(),
         Dropout(0.2),
         Dense(133, activation='softmax')
-        ])
+    ])
     return model
+
+
 # load train, test, and validation datasets
 train_files, train_targets = load_dataset('dogImages/train')
 valid_files, valid_targets = load_dataset('dogImages/valid')
@@ -88,13 +96,7 @@ print('There are %d total human images.' % len(human_files))
 # define ResNet50 model
 ResNet50_model = ResNet50(weights='imagenet')
 
-
-
-
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
-
-
-
 
 # Return accuracy of dog / human detection
 human_files_short = human_files[:100]
@@ -109,9 +111,6 @@ bottleneck_features = np.load('DogResnet50Data.npz')
 train_resnet = bottleneck_features['train']
 valid_resnet = bottleneck_features['valid']
 test_resnet = bottleneck_features['test']
-
-
-
 
 resnet_model = cnn_model()
 print(resnet_model.summary())
@@ -131,7 +130,5 @@ resnet_model.load_weights('saved_models/weights.best.Resnet50.hdf5')
 
 # Test ResNet-50 model
 resnet_predictions = [np.argmax(resnet_model.predict(np.expand_dims(feature, axis=0))) for feature in test_resnet]
-test_accuracy = 100*np.sum(np.array(resnet_predictions) == np.argmax(test_targets, axis=1))/len(resnet_predictions)
+test_accuracy = 100 * np.sum(np.array(resnet_predictions) == np.argmax(test_targets, axis=1)) / len(resnet_predictions)
 print('Test accuracy:\t{:.2f}%'.format(test_accuracy))
-
-

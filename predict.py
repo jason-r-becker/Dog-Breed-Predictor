@@ -57,7 +57,7 @@ def cnn_model():
         BatchNormalization(),
         Dropout(0.2),
         Dense(133, activation='softmax')
-        ])
+    ])
     return model
 
 
@@ -72,6 +72,7 @@ def face_detector(img_path):
 def dog_detector(img_path):
     prediction = ResNet50_predict_labels(img_path)
     return ((prediction <= 268) & (prediction >= 151))
+
 
 # define ResNet50 model
 ResNet50_model = ResNet50(weights='imagenet')
@@ -129,6 +130,8 @@ def predict_image(img_path):
     else:
         print("Error: Please input a picture of either a dog or human face.")
         return 'error'
+
+
 for file in filenames:
     result = predict_image('images/{}.png'.format(file))
     if result != 'error':
